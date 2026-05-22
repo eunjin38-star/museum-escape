@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비 오는 날의 도둑</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+    color:white;
+    background:#050505;
+    overflow-x:hidden;
+}
+
+.container{
+    width:100%;
+    min-height:100vh;
+    padding:10px 16px;
+}
+
+h1{
+    text-align:center;
+    color:gold;
+    font-size:clamp(28px, 4vw, 44px);
+    margin:6px 0 10px;
+}
+
+#intro{
+    min-height:calc(100vh - 80px);
+    border-radius:20px;
+    padding:28px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    position:relative;
+    overflow:hidden;
+    background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.48) 45%, rgba(0,0,0,0.18) 100%),
+    url("museum_bg.png");
+    background-size:cover;
+    background-position:center;
+    box-shadow:0 0 30px rgba(0,0,0,0.8);
+}
+
+#intro::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.08);
+}
+
+.intro-text{
+    position:relative;
+    z-index:1;
+    width:min(720px, 94%);
+    background:rgba(0,0,0,0.62);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:18px;
+    padding:26px;
+    line-height:1.65;
+    font-size:clamp(17px, 2vw, 23px);
+}
+
+.start-btn{
+    margin-top:18px;
+    padding:14px 26px;
+    font-size:clamp(17px, 2vw, 22px);
+    border:none;
+    border-radius:12px;
+    background:gold;
+    color:black;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#game{display:none;}
+
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.stage{
+    color:gold;
+    font-size:22px;
+    font-weight:bold;
+}
+
+#timer{
+    color:red;
+    font-size:30px;
+    font-weight:bold;
+}
+
+#suspects{
+    display:none;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.card{
+    background:rgba(15,15,15,0.97);
+    border-radius:14px;
+    padding:10px;
+    border:2px solid #444;
+    transition:0.25s;
+    cursor:pointer;
+    min-height:480px;
+}
+
+.card:hover{
+    transform:scale(1.01);
+    border-color:gold;
+}
+
+.selected{
+    border:4px solid gold;
+    box-shadow:0 0 16px gold;
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:contain;
+    object-position:center;
+    background:#000;
+    border-radius:10px;
+    display:block;
+    padding:6px;
+}
+
+.name{
+    color:gold;
+    font-size:clamp(19px, 2.3vw, 27px);
+    font-weight:bold;
+    text-align:center;
+    margin:8px 0 4px;
+}
+
+.job{
+    font-size:clamp(17px, 2vw, 22px);
+    font-weight:bold;
+    text-align:center;
+    margin-bottom:6px;
+}
+
+.info{
+    font-size:clamp(15px, 1.8vw, 20px);
+    line-height:1.45;
+    padding:8px;
+    background:rgba(255,255,255,0.06);
+    border-radius:10px;
+}
+
+.info-title{
+    color:gold;
+    font-weight:bold;
+}
+
+.game-panel{
+    background:rgba(0,0,0,0.86);
+    border-radius:16px;
+    padding:16px;
+    border:1px solid rgba(255,255,255,0.20);
+}
+
+#story{
+    color:#111;
+    background:#f3e3bd;
+    padding:16px 18px;
+    border-radius:12px;
+    margin-bottom:10px;
+    line-height:1.55;
+    font-size:clamp(17px, 2vw, 21px);
+    white-space:pre-line;
+    font-weight:bold;
+    border:2px solid #b79b5a;
+}
+
+#question{
+    white-space:pre-line;
+    line-height:1.5;
+    font-size:clamp(18px, 2.3vw, 25px);
+    margin-top:8px;
+}
+
+button{
+    margin-top:10px;
+    margin-right:7px;
+    padding:10px 16px;
+    font-size:clamp(15px, 1.8vw, 18px);
+    border:none;
+    border-radius:9px;
+    cursor:pointer;
+    transition:0.25s;
+    font-weight:bold;
+}
+
+button:hover{transform:scale(1.03);}
+
+.submit-btn{
+    background:gold;
+    color:black;
+}
+
+.hint-btn{
+    background:#00b894;
+    color:white;
+}
+
+.back-btn{
+    background:#e74c3c;
+    color:white;
+}
+
+#logic-buttons{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.logic-btn{
+    flex:1;
+    min-width:120px;
+    padding:12px;
+    font-size:clamp(16px, 2vw, 20px);
+    border-radius:10px;
+}
+
+.deductive{background:#3498db;color:white;}
+.inductive{background:#9b59b6;color:white;}
+.analogical{background:#2ecc71;color:white;}
+
+#result{
+    margin-top:10px;
+    font-size:clamp(18px, 2vw, 22px);
+}
+
+#hint{
+    margin-top:9px;
+    color:#00ffcc;
+    font-size:clamp(16px, 2vw, 20px);
+}
+
+.success{color:lime;}
+.fail{color:red;}
+
+#ending{
+    display:none;
+    text-align:center;
+    margin-top:20px;
+}
+
+#ending img{
+    width:min(760px, 92%);
+    max-height:62vh;
+    object-fit:contain;
+    border-radius:18px;
+    margin-top:12px;
+}
+
+@media (max-width:900px){
+    .container{padding:8px;}
+
+    #intro{
+        min-height:calc(100vh - 70px);
+        padding:18px;
+        align-items:flex-start;
+    }
+
+    .intro-text{
+        width:100%;
+        padding:18px;
+        margin-top:8px;
+    }
+
+    #suspects{
+        gap:6px;
+    }
+
+    .card{
+        padding:7px;
+    }
+
+    .card img{
+        height:115px;
+    }
+
+    .name{
+        font-size:18px;
+    }
+
+    .job{
+        font-size:16px;
+    }
+
+    .info{
+        font-size:14px;
+        line-height:1.35;
+        padding:6px;
+    }
+
+    #story{
+        font-size:16px;
+        padding:12px;
+        line-height:1.45;
+    }
+
+    #question{
+        font-size:18px;
+        line-height:1.4;
+    }
+
+    button{
+        padding:9px 12px;
+    }
+}
+
+@media (max-width:650px){
+    #suspects{
+        grid-template-columns:1fr;
+    }
+
+    .card img{
+        height:170px;
+    }
+
+    #intro{
+        min-height:auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>《비 오는 날의 도둑》</h1>
+
+<div id="intro">
+    <div class="intro-text">
+        어젯밤 폭우가 내리던 가운데, 시립 박물관에서 귀중한 유물이 사라졌다.<br><br>
+        현장에는 젖은 운동화 자국, 꺼져 있는 경보기, 조작된 CCTV 기록만이 남아 있었다.<br><br>
+        당신은 특별 수사팀 탐정이다.<br>
+        단서를 분석하고 논리적인 추리를 통해 진짜 범인을 찾아내라.
+
+        <br><br>
+
+        <button class="start-btn" onclick="startGame()">
+        범인을 찾아보자
+        </button>
+    </div>
+</div>
+
+<div id="game">
+
+<div class="top-bar">
+    <div class="stage" id="stageText">수사 단계 1/7</div>
+    <div id="timer">10:00</div>
+</div>
+
+<div id="suspects">
+
+<div class="card" id="sus1" onclick="toggleSuspect(1)">
+<img src="kim.png">
+<div class="name">용의자 1. 김도윤</div>
+<div class="job">배달 기사</div>
+<div class="info">
+<span class="info-title">특징</span><br>
+비 오는 날 우비 착용, 큰 운동화 사용<br>
+<span class="info-title">참고 사항</span><br>
+사건 전후 야간 이동 기록 있음
+</div>
+</div>
+
+<div class="card" id="sus2" onclick="toggleSuspect(2)">
+<img src="lee.png">
+<div class="name">용의자 2. 이서준</div>
+<div class="job">경비원</div>
+<div class="info">
+<span class="info-title">특징</span><br>
+경보기 관리 경험, CCTV 조작 가능<br>
+<span class="info-title">참고 사항</span><br>
+박물관 내부 구조에 익숙함
+</div>
+</div>
+
+<div class="card" id="sus3" onclick="toggleSuspect(3)">
+<img src="park.png">
+<div class="name">용의자 3. 박현우</div>
+<div class="job">화가</div>
+<div class="info">
+<span class="info-title">특징</span><br>
+붉은 페인트 사용, 낡은 운동화 착용<br>
+<span class="info-title">참고 사항</span><br>
+박물관 근처 작업실 보유
+</div>
+</div>
+
+</div>
+
+<div class="game-panel">
+
+<div id="story"></div>
+<div id="question"></div>
+
+<div id="logic-buttons">
+
+<button class="logic-btn deductive" onclick="selectLogic('연역논증', this)">
+연역논증
+</button>
+
+<button class="logic-btn inductive" onclick="selectLogic('귀납논증', this)">
+귀납논증
+</button>
+
+<button class="logic-btn analogical" onclick="selectLogic('유추논증', this)">
+유추논증
+</button>
+
+</div>
+
+<button class="submit-btn" onclick="checkAnswer()">추리하기</button>
+<button class="hint-btn" onclick="showHint()">힌트</button>
+<button class="back-btn" onclick="prevQuestion()">이전 단계</button>
+
+<div id="hint"></div>
+<div id="result"></div>
+
+</div>
+</div>
+
+<div id="ending">
+<h1>사건 해결 성공!</h1>
+<h2>범인 이서준이 박물관 앞에서 경찰에 체포되었습니다.</h2>
+<img src="ending.png">
+</div>
+
+</div>
+
+<script>
+const questions = [
+{
+story:
+`[경찰 수사 기록]
+
+지난 5건의 박물관 도난 사건은 모두 비 오는 날 발생했다.
+현장마다 젖은 운동화 자국과 꺼진 경보기가 반복적으로 발견되었다.`,
+
+question:
+`당신은 반복되는 사례를 바탕으로
+"범인은 비 오는 날 범행하는 경향이 있다"라고 추론했다.
+
+사용된 논증 방법은?`,
+
+answers:["귀납논증"],
+hint:"여러 사례의 공통점을 통해 결론을 내리고 있다."
+},
+{
+story:
+`[목격자 진술]
+
+"내부 시스템을 아는 사람은 경보기의 비밀번호를 알아요."
+
+그리고 실제로 경보기는 정확한 비밀번호로 해제되어 있었다.`,
+
+question:
+`당신은 "범인은 내부 시스템을 잘 아는 사람이다"라고 판단했다.
+
+사용된 논증 방법은?`,
+
+answers:["연역논증"],
+hint:"일반적인 원리에서 특정 결론을 도출하고 있다."
+},
+{
+story:
+`[탐정 노트]
+
+이번 사건은 3개월 전 미술관 절도 사건과 매우 비슷하다.
+
+- 폭우가 내림
+- CCTV 오류 발생
+- 경보기 해제
+- 젖은 발자국 발견`,
+
+question:
+`당신은 "두 사건의 범인이 같을 가능성이 높다"라고 추론했다.
+
+사용된 논증 방법은?`,
+
+answers:["유추논증"],
+hint:"비슷한 사건끼리 비교하고 있다."
+},
+{
+story:
+`[현장 조사]
+
+- 박물관 근처에서 빨간 페인트의 발자국을 발견함
+- 젖은 운동화 자국이 발견됨
+- 경보기는 정상적으로 해제됨
+- CCTV 기록 일부가 사라져 있음
+
+두 명의 용의자가 특히 의심되니 선택해보자.`,
+
+question:
+`의심되는 사람을 모두 선택해 보자.`,
+
+answers:["3,2","2,3"],
+hint:"빨간 페인트, 운동화, 경보기 단서를 함께 보자."
+},
+{
+story:
+`[추가 수사]
+
+- 사건 직전 오토바이 이동 기록 발견
+- CCTV 영상이 3분간 끊겨 있었음
+- 우비 입은 인물이 목격됨
+- 출입문에는 강제로 침입한 흔적이 없음
+
+두 명의 용의자가 수상하니 선택해보자.`,
+
+question:
+`현재 가장 의심되는 사람을 모두 선택해 보자.`,
+
+answers:["1,2","2,1"],
+hint:"우비와 CCTV 단서를 함께 생각하라."
+},
+{
+story:
+`[최종 분석]
+
+- 모든 사건에서 경보기가 정확한 비밀번호로 해제됨
+- CCTV 오류 시간과 경비실 접속 기록 시간이 일치
+- 경비 시스템 접속 계정이 동일함
+
+결정적인 단서가 발견되었다.`,
+
+question:
+`최종 범인을 선택하라.`,
+
+answers:["2"],
+hint:"경비 시스템에 접근 가능한 사람은?"
+},
+{
+story:
+`[최종 추리]
+
+당신은 반복되는 사건의 공통점을 분석해 범인을 특정했다.`,
+
+question:
+`범인을 특정할 때 사용된 논증 방법은?`,
+
+answers:["귀납논증"],
+hint:"여러 사건의 공통점을 종합했다."
+}
+];
+
+let currentQuestion = 0;
+let selectedSuspects = [];
+let selectedLogic = "";
+let time = 600;
+let timerStarted = false;
+
+function startGame(){
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    loadQuestion();
+
+    if(!timerStarted){
+        timerStarted = true;
+        startTimer();
+    }
+}
+
+function loadQuestion(){
+    document.getElementById("stageText").innerText =
+    "수사 단계 " + (currentQuestion + 1) + "/7";
+
+    document.getElementById("story").innerText =
+    questions[currentQuestion].story;
+
+    document.getElementById("question").innerText =
+    questions[currentQuestion].question;
+
+    document.getElementById("result").innerText = "";
+    document.getElementById("hint").innerText = "";
+
+    selectedSuspects = [];
+    selectedLogic = "";
+
+    document.querySelectorAll(".card").forEach(card=>{
+        card.classList.remove("selected");
+    });
+
+    document.querySelectorAll(".logic-btn").forEach(btn=>{
+        btn.style.outline = "none";
+    });
+
+    if(currentQuestion <=2 || currentQuestion ===6){
+        document.getElementById("logic-buttons").style.display = "flex";
+    }else{
+        document.getElementById("logic-buttons").style.display = "none";
+    }
+
+    if(currentQuestion >=3 && currentQuestion <=5){
+        document.getElementById("suspects").style.display = "grid";
+    }else{
+        document.getElementById("suspects").style.display = "none";
+    }
+}
+
+function selectLogic(type, btn){
+    selectedLogic = type;
+
+    document.querySelectorAll(".logic-btn").forEach(b=>{
+        b.style.outline = "none";
+    });
+
+    btn.style.outline = "4px solid white";
+}
+
+function toggleSuspect(num){
+    if(currentQuestion <3 || currentQuestion >5){
+        return;
+    }
+
+    const card = document.getElementById("sus" + num);
+
+    if(selectedSuspects.includes(num)){
+        selectedSuspects = selectedSuspects.filter(n=>n!==num);
+        card.classList.remove("selected");
+    }else{
+        selectedSuspects.push(num);
+        card.classList.add("selected");
+    }
+}
+
+function normalize(text){
+    return text.replace(/\s/g,"").toLowerCase();
+}
+
+function checkAnswer(){
+    let userAnswer;
+
+    if(currentQuestion <=2 || currentQuestion ===6){
+        userAnswer = normalize(selectedLogic);
+    }else{
+        userAnswer = selectedSuspects.sort().join(",");
+    }
+
+    const answers = questions[currentQuestion].answers;
+    let correct = false;
+
+    for(let ans of answers){
+        if(userAnswer === normalize(ans)){
+            correct = true;
+        }
+    }
+
+    const result = document.getElementById("result");
+
+    if(correct){
+        result.className = "success";
+
+        if(currentQuestion === questions.length -1){
+            document.getElementById("game").style.display = "none";
+            document.getElementById("ending").style.display = "block";
+        }else{
+            result.innerText = "정답! 다음 수사로 이동합니다.";
+            currentQuestion++;
+            setTimeout(loadQuestion,800);
+        }
+    }else{
+    result.className = "fail";
+
+    // 오답 시 1분 차감
+    time -= 60;
+
+    // 시간이 0 이하가 되면 바로 종료
+    if(time <= 0){
+        document.body.innerHTML =
+        "<h1 style='color:red;text-align:center;margin-top:200px;'>시간 초과... 범인이 도주했습니다.</h1>";
+        return;
+    }
+
+    result.innerText =
+    "추리 실패... 단서를 다시 분석해보자. ⏳ 1분 차감!";
+    }
+}
+
+function prevQuestion(){
+    if(currentQuestion >0){
+        currentQuestion--;
+        loadQuestion();
+    }
+}
+
+function showHint(){
+    document.getElementById("hint").innerText =
+    "힌트: " + questions[currentQuestion].hint;
+}
+
+function startTimer(){
+    setInterval(function(){
+        let min = Math.floor(time / 60);
+        let sec = time % 60;
+
+        if(sec <10){
+            sec = "0" + sec;
+        }
+
+        const timer = document.getElementById("timer");
+
+        if(timer){
+            timer.innerText = min + ":" + sec;
+        }
+
+        time--;
+
+        if(time <0){
+            document.body.innerHTML =
+            "<h1 style='color:red;text-align:center;margin-top:200px;'>시간 초과... 범인이 도주했습니다.</h1>";
+        }
+    },1000);
+}
+</script>
+
+</body>
+</html>
